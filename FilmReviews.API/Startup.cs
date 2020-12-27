@@ -1,4 +1,6 @@
+using FilmReviews.API.Contracts;
 using FilmReviews.API.Data;
+using FilmReviews.API.Repository;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -31,6 +33,8 @@ namespace FilmReviews.API
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(
                     Configuration.GetConnectionString("DefaultConnection")));
+
+            services.AddScoped<IMovieRepository, MovieRepository>();
 
             services.AddControllers();
             services.AddHttpClient();
