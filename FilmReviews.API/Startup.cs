@@ -35,9 +35,16 @@ namespace FilmReviews.API
                     Configuration.GetConnectionString("DefaultConnection")));
 
             services.AddScoped<IMovieRepository, MovieRepository>();
+            services.AddScoped<IReviewRepository, ReviewRepository>();
 
             services.AddControllers();
+
             services.AddHttpClient();
+            services.AddHttpClient("omdb", c =>
+            {
+                c.BaseAddress = new Uri(Configuration.GetValue<string>("OmdbAPI"));
+            });
+
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "FilmReviews.API", Version = "v1" });

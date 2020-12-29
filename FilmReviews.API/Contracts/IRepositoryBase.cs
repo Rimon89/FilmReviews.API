@@ -7,7 +7,7 @@ namespace FilmReviews.API.Contracts
 {
     public interface IRepositoryBase<T> where T: class
     {
-        Task<T> FindById(string id);
+        Task<T> Find(string id);
         Task<bool> Create(T entity);
     }
 }

@@ -2,7 +2,7 @@
 
 namespace FilmReviews.API.Contracts
 {
-    public interface IMovieRepository : IRepositoryBase<Movie>
+    public interface IReviewRepository : IRepositoryBase<Review>
     {
     }
 }

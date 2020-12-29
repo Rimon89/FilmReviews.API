@@ -23,13 +23,13 @@ namespace FilmReviews.API.Controllers
         [HttpGet("{imdbId}")]
         public async Task<IActionResult> GetMovieAsync(string imdbId)
         {
-            var movie = await _movieRepo.FindById(imdbId);
+            var movie = await _movieRepo.Find(imdbId);
 
             if(movie == null)
             {
-                var client = _clientFactory.CreateClient();
+                var client = _clientFactory.CreateClient("omdb");
 
-                movie = await client.GetFromJsonAsync<Movie>($"http://www.omdbapi.com/?i={imdbId}&apikey=6cf600c0");
+                movie = await client.GetFromJsonAsync<Movie>($"?i={imdbId}&apikey=6cf600c0");
 
                 if (movie.ImdbID == null)
                     return NotFound();
