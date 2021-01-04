@@ -22,10 +22,10 @@ namespace FilmReviews.API.Controllers
         [HttpPost("Create")]
         public async Task<IActionResult> CreateAsync(Review review)
         {
-            var reviewFromDb = await _reviewRepo.Find(review.Name);
+            var reviewFromDb = await _reviewRepo.Find(review.Id);
 
             if (reviewFromDb != null)
-                return BadRequest("Review with the same header already exists. Change header!");
+                return BadRequest();
 
             var success = await _reviewRepo.Create(review);
 
@@ -33,6 +33,14 @@ namespace FilmReviews.API.Controllers
                 return Ok();
 
             return BadRequest();
+        }
+
+        [HttpGet("GetAll")]
+        public async Task<IActionResult> GetAll()
+        {
+            var reviews = await _reviewRepo.GetAll();
+
+            return Ok(reviews);
         }
     }
 }

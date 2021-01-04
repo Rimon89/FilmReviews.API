@@ -2,6 +2,8 @@
 using FilmReviews.API.Data;
 using FilmReviews.API.Models;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -25,11 +27,23 @@ namespace FilmReviews.API.Repository
             return changes > 0;
         }
 
-        public async Task<Review> Find(string name)
+        public Task<bool> Delete(Guid id)
         {
-            var review = await _dbContext.Reviews.Where(r => r.Name == name).FirstOrDefaultAsync();
+            throw new System.NotImplementedException();
+        }
+
+        public async Task<Review> Find(Guid id)
+        {
+            var review = await _dbContext.Reviews.FindAsync(id);
 
             return review;
+        }
+
+        public async Task<ICollection<Review>> GetAll()
+        {
+            var reviews = await _dbContext.Reviews.ToListAsync();
+
+            return reviews;
         }
     }
 }
