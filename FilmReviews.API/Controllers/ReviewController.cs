@@ -36,11 +36,22 @@ namespace FilmReviews.API.Controllers
         }
 
         [HttpGet("GetAll")]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAllAsync()
         {
             var reviews = await _reviewRepo.GetAll();
 
             return Ok(reviews);
+        }
+
+        [HttpDelete("Delete/{id}")]
+        public async Task<IActionResult> DeleteAsync(Guid id)
+        {
+            var success = await _reviewRepo.Delete(id);
+
+            if (success)
+                return Ok();
+
+            return BadRequest("Something went wrong");
         }
     }
 }

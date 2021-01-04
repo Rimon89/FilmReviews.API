@@ -27,9 +27,15 @@ namespace FilmReviews.API.Repository
             return changes > 0;
         }
 
-        public Task<bool> Delete(Guid id)
+        public async Task<bool> Delete(Guid id)
         {
-            throw new System.NotImplementedException();
+            var reviewToDelete = await Find(id);
+
+            _dbContext.Reviews.Remove(reviewToDelete);
+
+            var changes = await _dbContext.SaveChangesAsync();
+
+            return changes > 0;
         }
 
         public async Task<Review> Find(Guid id)
