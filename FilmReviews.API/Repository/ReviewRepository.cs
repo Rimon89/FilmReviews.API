@@ -51,5 +51,12 @@ namespace FilmReviews.API.Repository
 
             return reviews;
         }
+
+        public async Task Update(Review entity)
+        {
+            _dbContext.Reviews.Update(entity);
+
+            await _dbContext.SaveChangesAsync();
+        }
     }
 }

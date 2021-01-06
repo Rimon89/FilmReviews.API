@@ -10,5 +10,6 @@ namespace FilmReviews.API.Contracts
         Task<ICollection<Review>> GetAll();
         Task<Review> Find(Guid id);
         Task<bool> Delete(Guid id);
+        Task Update(Review entity);
     }
 }

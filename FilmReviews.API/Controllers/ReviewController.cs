@@ -22,25 +22,60 @@ namespace FilmReviews.API.Controllers
         [HttpPost("Create")]
         public async Task<IActionResult> CreateAsync(Review review)
         {
-            var reviewFromDb = await _reviewRepo.Find(review.Id);
+            try
+            {
+                var reviewFromDb = await _reviewRepo.Find(review.Id);
 
-            if (reviewFromDb != null)
+                if (reviewFromDb != null)
+                    return BadRequest();
+
+                var success = await _reviewRepo.Create(review);
+
+                if (success)
+                    return Ok();
+
                 return BadRequest();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex);
+            }
 
-            var success = await _reviewRepo.Create(review);
+        }
 
-            if(success)
-                return Ok();
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetReview(Guid id)
+        {
+            try
+            {
+                var review = await _reviewRepo.Find(id);
 
-            return BadRequest();
+                if (review == null)
+                    return NotFound();
+
+                return Ok(review);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex);
+            }
+
         }
 
         [HttpGet("GetAll")]
         public async Task<IActionResult> GetAllAsync()
         {
-            var reviews = await _reviewRepo.GetAll();
+            try
+            {
+                var reviews = await _reviewRepo.GetAll();
 
-            return Ok(reviews);
+                return Ok(reviews);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex);
+            }
+
         }
 
         [HttpDelete("Delete/{id}")]
@@ -52,6 +87,24 @@ namespace FilmReviews.API.Controllers
                 return Ok();
 
             return BadRequest("Something went wrong");
+        }
+
+        [HttpPut("Update")]
+        public async Task<IActionResult> UpdateAsync([FromBody] Review request)
+        {
+            var reviewFromDb = await _reviewRepo.Find(request.Id);
+
+            if (reviewFromDb == null)
+                return NotFound();
+
+            reviewFromDb.Name = request.Name;
+            reviewFromDb.MovieReview = request.MovieReview;
+            reviewFromDb.Rating = request.Rating;
+            reviewFromDb.ReviewDate = DateTime.UtcNow;
+
+            await _reviewRepo.Update(reviewFromDb);
+
+            return Ok(reviewFromDb);
         }
     }
 }
