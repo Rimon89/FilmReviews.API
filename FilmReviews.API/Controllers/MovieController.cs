@@ -1,6 +1,7 @@
 ﻿using FilmReviews.API.Contracts;
 using FilmReviews.API.Models;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
@@ -23,24 +24,30 @@ namespace FilmReviews.API.Controllers
         [HttpGet("{imdbId}")]
         public async Task<IActionResult> GetMovieAsync(string imdbId)
         {
-            var movie = await _movieRepo.Find(imdbId);
-
-            if(movie == null)
+            try
             {
-                var client = _clientFactory.CreateClient("omdb");
+                var movie = await _movieRepo.Find(imdbId);
 
-                movie = await client.GetFromJsonAsync<Movie>($"?i={imdbId}&apikey=6cf600c0");
+                if (movie == null)
+                {
+                    var client = _clientFactory.CreateClient("omdb");
 
-                if (movie.ImdbID == null)
-                    return NotFound();
+                    movie = await client.GetFromJsonAsync<Movie>($"?i={imdbId}&apikey=6cf600c0");
 
-                var success = await _movieRepo.Create(movie);
+                    if (movie.ImdbID == null)
+                        return NotFound();
 
-                if (!success)
-                    return BadRequest();
+                    var success = await _movieRepo.Create(movie);
+
+                    if (!success)
+                        return BadRequest();
+                }
+                return Ok(movie);
             }
-
-            return Ok(movie);
+            catch (Exception ex)
+            {
+                return BadRequest(ex);
+            }
         }
     }
 }

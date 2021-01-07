@@ -81,30 +81,44 @@ namespace FilmReviews.API.Controllers
         [HttpDelete("Delete/{id}")]
         public async Task<IActionResult> DeleteAsync(Guid id)
         {
-            var success = await _reviewRepo.Delete(id);
+            try
+            {
+                var success = await _reviewRepo.Delete(id);
 
-            if (success)
-                return Ok();
+                if (success)
+                    return Ok();
 
-            return BadRequest("Something went wrong");
+                return BadRequest();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex);
+            }
         }
 
         [HttpPut("Update")]
         public async Task<IActionResult> UpdateAsync([FromBody] Review request)
         {
-            var reviewFromDb = await _reviewRepo.Find(request.Id);
+            try
+            {
+                var reviewFromDb = await _reviewRepo.Find(request.Id);
 
-            if (reviewFromDb == null)
-                return NotFound();
+                if (reviewFromDb == null)
+                    return NotFound();
 
-            reviewFromDb.Name = request.Name;
-            reviewFromDb.MovieReview = request.MovieReview;
-            reviewFromDb.Rating = request.Rating;
-            reviewFromDb.ReviewDate = DateTime.UtcNow;
+                reviewFromDb.Name = request.Name;
+                reviewFromDb.MovieReview = request.MovieReview;
+                reviewFromDb.Rating = request.Rating;
+                reviewFromDb.ReviewDate = request.ReviewDate;
 
-            await _reviewRepo.Update(reviewFromDb);
+                await _reviewRepo.Update(reviewFromDb);
 
-            return Ok(reviewFromDb);
+                return Ok(reviewFromDb);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex);
+            }
         }
     }
 }

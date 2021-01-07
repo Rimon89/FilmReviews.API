@@ -24,7 +24,7 @@ namespace FilmReviews.API.Models
 
         [Required]
         public string Author { get; set; }
-        public DateTime ReviewDate { get; set; } = DateTime.UtcNow;
+        public DateTime ReviewDate { get; set; }
 
         public string MovieTitle { get; set; }
         public string ImdbId { get; set; }
