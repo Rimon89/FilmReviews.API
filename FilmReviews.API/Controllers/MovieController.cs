@@ -49,5 +49,21 @@ namespace FilmReviews.API.Controllers
                 return BadRequest(ex);
             }
         }
+
+        [HttpGet("GetAll")]
+        public async Task<IActionResult> GetAllAsync()
+        {
+            try
+            {
+                var movies = await _movieRepo.GetAll();
+
+                return Ok(movies);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
+        }
     }
 }

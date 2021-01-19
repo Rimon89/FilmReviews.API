@@ -1,6 +1,8 @@
 ﻿using FilmReviews.API.Contracts;
 using FilmReviews.API.Data;
 using FilmReviews.API.Models;
+using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace FilmReviews.API.Repository
@@ -28,6 +30,13 @@ namespace FilmReviews.API.Repository
             var movie = await _dbContext.Movies.FindAsync(id);
 
             return movie;
+        }
+
+        public async Task<ICollection<Movie>> GetAll()
+        {
+            var movies = await _dbContext.Movies.ToListAsync();
+
+            return movies;
         }
     }
 }
