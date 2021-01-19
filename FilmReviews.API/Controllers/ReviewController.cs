@@ -24,11 +24,6 @@ namespace FilmReviews.API.Controllers
         {
             try
             {
-                var reviewFromDb = await _reviewRepo.Find(review.Id);
-
-                if (reviewFromDb != null)
-                    return BadRequest();
-
                 var success = await _reviewRepo.Create(review);
 
                 if (success)
@@ -38,13 +33,13 @@ namespace FilmReviews.API.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(ex);
+                return BadRequest(ex.Message);
             }
 
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetReview(Guid id)
+        public async Task<IActionResult> GetReviewAsync(Guid id)
         {
             try
             {
@@ -57,7 +52,7 @@ namespace FilmReviews.API.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(ex);
+                return BadRequest(ex.Message);
             }
 
         }
@@ -73,7 +68,7 @@ namespace FilmReviews.API.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(ex);
+                return BadRequest(ex.Message);
             }
 
         }
@@ -92,7 +87,7 @@ namespace FilmReviews.API.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(ex);
+                return BadRequest(ex.Message);
             }
         }
 
@@ -117,7 +112,7 @@ namespace FilmReviews.API.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(ex);
+                return BadRequest(ex.Message);
             }
         }
     }

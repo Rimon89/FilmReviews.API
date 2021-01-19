@@ -24,9 +24,14 @@ namespace FilmReviews.API.Models
 
         [Required]
         public string Author { get; set; }
+
+        [Required]
         public DateTime ReviewDate { get; set; }
 
+        [Required]
         public string MovieTitle { get; set; }
+
+        [Required]
         public string ImdbId { get; set; }
 
         [ForeignKey(nameof(ImdbId))]
