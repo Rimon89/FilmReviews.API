@@ -1,9 +1,8 @@
-﻿using FilmReviews.API.Contracts;
-using FilmReviews.API.Models;
+﻿using FilmReviews.API.Models;
+using FilmReviews.API.Services.Reviews;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace FilmReviews.API.Controllers
@@ -12,11 +11,10 @@ namespace FilmReviews.API.Controllers
     [Route("api/[controller]")]
     public class ReviewController : ControllerBase
     {
-        private readonly IReviewRepository _reviewRepo;
-
-        public ReviewController(IReviewRepository reviewRepo)
+        private readonly IMediator _mediator;
+        public ReviewController(IMediator mediator)
         {
-            _reviewRepo = reviewRepo;
+            _mediator = mediator;
         }
 
         [HttpPost("Create")]
@@ -24,18 +22,13 @@ namespace FilmReviews.API.Controllers
         {
             try
             {
-                var success = await _reviewRepo.Create(review);
-
-                if (success)
-                    return Ok();
-
-                return BadRequest();
+                var success = await _mediator.Send(new Create.Command { Review = review });
+                return success ? Ok() : BadRequest();
             }
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
             }
-
         }
 
         [HttpGet("{id}")]
@@ -43,18 +36,13 @@ namespace FilmReviews.API.Controllers
         {
             try
             {
-                var review = await _reviewRepo.Find(id);
-
-                if (review == null)
-                    return NotFound();
-
-                return Ok(review);
+                var review = await _mediator.Send(new Details.Query { ReviewId = id });
+                return review != null ? Ok(review) : NotFound();
             }
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
             }
-
         }
 
         [HttpGet("GetAll")]
@@ -62,15 +50,12 @@ namespace FilmReviews.API.Controllers
         {
             try
             {
-                var reviews = await _reviewRepo.GetAll();
-
-                return Ok(reviews);
+                return Ok(await _mediator.Send(new List.Query()));
             }
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
             }
-
         }
 
         [HttpDelete("Delete/{id}")]
@@ -78,12 +63,8 @@ namespace FilmReviews.API.Controllers
         {
             try
             {
-                var success = await _reviewRepo.Delete(id);
-
-                if (success)
-                    return Ok();
-
-                return BadRequest();
+                var success = await _mediator.Send(new Delete.Command { ReviewId = id });
+                return success ? Ok() : BadRequest();
             }
             catch (Exception ex)
             {
@@ -96,19 +77,7 @@ namespace FilmReviews.API.Controllers
         {
             try
             {
-                var reviewFromDb = await _reviewRepo.Find(request.Id);
-
-                if (reviewFromDb == null)
-                    return NotFound();
-
-                reviewFromDb.Name = request.Name;
-                reviewFromDb.MovieReview = request.MovieReview;
-                reviewFromDb.Rating = request.Rating;
-                reviewFromDb.ReviewDate = request.ReviewDate;
-
-                await _reviewRepo.Update(reviewFromDb);
-
-                return Ok(reviewFromDb);
+                return Ok(await _mediator.Send(new Edit.Command { Review = request }));
             }
             catch (Exception ex)
             {

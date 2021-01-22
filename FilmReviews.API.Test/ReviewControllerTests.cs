@@ -1,31 +1,30 @@
-﻿using FilmReviews.API.Contracts;
-using FilmReviews.API.Controllers;
+﻿using FilmReviews.API.Controllers;
 using FilmReviews.API.Models;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
+using static FilmReviews.API.Services.Reviews.Create;
 
 namespace FilmReviews.API.Test
 {
     public class ReviewControllerTests
     {
         private readonly ReviewController _sut;
-        private readonly Mock<IReviewRepository> _reviewRepoMock = new Mock<IReviewRepository>();
+        private readonly Mock<IMediator> _mediator = new Mock<IMediator>();
 
         public ReviewControllerTests()
         {
-            _sut = new ReviewController(_reviewRepoMock.Object);
+            _sut = new ReviewController(_mediator.Object);
         }
 
         [Fact]
         public async Task CreateAsync_ReturnsStatus200Ok_WhenReviewWasCreated()
         {
-            //Arrange
             var review = new Review
             {
                 Id = Guid.NewGuid(),
@@ -37,19 +36,18 @@ namespace FilmReviews.API.Test
                 Rating = 1,
                 ReviewDate = DateTime.Today
             };
-            _reviewRepoMock.Setup(x => x.Create(review)).ReturnsAsync(true);
+            _mediator.Setup(m => m.Send(It.IsAny<Command>(), It.IsAny<CancellationToken>())).ReturnsAsync(true);
 
-            //Act
             var result = await _sut.CreateAsync(review);
 
-            //Assert
             Assert.IsType<OkResult>(result);
+            Assert.NotNull(result);
+            _mediator.Verify();
         }
 
         [Fact]
         public async Task CreateAsync_ReturnsBadRequest_WhenReviewWasNotCreated()
         {
-            //Arrange
             var review = new Review
             {
                 Id = Guid.NewGuid(),
@@ -61,33 +59,30 @@ namespace FilmReviews.API.Test
                 Rating = 1,
                 ReviewDate = DateTime.Today
             };
-            _reviewRepoMock.Setup(x => x.Create(review)).ReturnsAsync(false);
+            _mediator.Setup(m => m.Send(It.IsAny<Command>(), It.IsAny<CancellationToken>())).ReturnsAsync(false);
 
-            //Act
             var result = await _sut.CreateAsync(review);
 
-            //Assert
             Assert.IsType<BadRequestResult>(result);
+            Assert.NotNull(result);
+            _mediator.Verify();
         }
 
         [Fact]
         public async Task CreateAsync_ReturnsBadRequest_WhenAnExceptionIsThrown()
         {
-            //Arrange
             Review review = null;
+            _mediator.Setup(m => m.Send(It.IsAny<Command>(), It.IsAny<CancellationToken>())).ReturnsAsync(false);
 
-            //Act
             var result = await _sut.CreateAsync(review);
 
-            //Assert
             Assert.IsType<BadRequestResult>(result);
             Assert.NotNull(result);
         }
 
         [Fact]
-        public async Task GetReview_ReturnsOkWithTheReview_WhenReviewIsFoundInDb()
+        public async Task GetReviewAsync_ReturnsOkWithTheReview_WhenReviewIsFoundInDb()
         {
-            //Arrange
             var id = Guid.NewGuid();
             var review = new Review
             {
@@ -100,12 +95,10 @@ namespace FilmReviews.API.Test
                 Rating = 1,
                 ReviewDate = DateTime.Today
             };
-            _reviewRepoMock.Setup(x => x.Find(id)).ReturnsAsync(review);
+            _mediator.Setup(m => m.Send(It.IsAny<Services.Reviews.Details.Query>(), It.IsAny<CancellationToken>())).ReturnsAsync(review);
 
-            //Act
             var result = await _sut.GetReviewAsync(id);
 
-            //Assert
             Assert.NotNull(result);
             var actionResult = Assert.IsType<OkObjectResult>(result);
             var model = Assert.IsAssignableFrom<Review>(actionResult.Value);
@@ -113,25 +106,21 @@ namespace FilmReviews.API.Test
         }
 
         [Fact]
-        public async Task GetReview_ReturnsNotFound_WhenReviewDoesNotExistsInDb()
+        public async Task GetReviewAsync_ReturnsNotFound_WhenReviewDoesNotExistsInDb()
         {
-            //Arrange
             var id = Guid.NewGuid();
             Review review = null;
-            _reviewRepoMock.Setup(x => x.Find(id)).ReturnsAsync(review);
+            _mediator.Setup(m => m.Send(It.IsAny<Services.Reviews.Details.Query>(), It.IsAny<CancellationToken>())).ReturnsAsync(review);
 
-            //Act
             var result = await _sut.GetReviewAsync(id);
 
-            //Assert
             Assert.NotNull(result);
             Assert.IsType<NotFoundResult>(result);
         }
 
         [Fact]
-        public async Task GetReviewAsync_ReturnsOkObjectResult_WhenGetAllGetsCalled()
+        public async Task GetAllAsync_ReturnsOkObjectResult_WhenRetrievingAllReviews()
         {
-            //Arrange
             var reviews = new List<Review>();
             reviews.Add(new Review
             {
@@ -155,12 +144,10 @@ namespace FilmReviews.API.Test
                 Rating = 1,
                 ReviewDate = DateTime.Today
             });
-            _reviewRepoMock.Setup(x => x.GetAll()).ReturnsAsync(reviews);
+            _mediator.Setup(m => m.Send(It.IsAny<Services.Reviews.List.Query>(), It.IsAny<CancellationToken>())).ReturnsAsync(reviews);
 
-            //Act
             var result = await _sut.GetAllAsync();
 
-            //Assert
             Assert.NotNull(result);
             var actionResult = Assert.IsType<OkObjectResult>(result);
             var models = Assert.IsAssignableFrom<List<Review>>(actionResult.Value);

@@ -1,9 +1,7 @@
-﻿using FilmReviews.API.Contracts;
-using FilmReviews.API.Models;
+﻿using FilmReviews.API.Services.Movies;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using System;
-using System.Net.Http;
-using System.Net.Http.Json;
 using System.Threading.Tasks;
 
 namespace FilmReviews.API.Controllers
@@ -12,13 +10,11 @@ namespace FilmReviews.API.Controllers
     [Route("api/[controller]")]
     public class MovieController : ControllerBase
     {
-        private readonly IMovieRepository _movieRepo;
-        private readonly IHttpClientFactory _clientFactory;
+        private readonly IMediator _mediator;
 
-        public MovieController(IHttpClientFactory clientFactory, IMovieRepository movieRepo)
+        public MovieController(IMediator mediator)
         {
-            _clientFactory = clientFactory;
-            _movieRepo = movieRepo;
+            _mediator = mediator;
         }
 
         [HttpGet("{imdbId}")]
@@ -26,22 +22,11 @@ namespace FilmReviews.API.Controllers
         {
             try
             {
-                var movie = await _movieRepo.Find(imdbId);
+                var movie = await _mediator.Send(new Details.Query { ImdbId = imdbId });
 
-                if (movie == null)
-                {
-                    var client = _clientFactory.CreateClient("omdb");
+                if (string.IsNullOrEmpty(movie.ImdbID))
+                    return NotFound();
 
-                    movie = await client.GetFromJsonAsync<Movie>($"?i={imdbId}&apikey=6cf600c0");
-
-                    if (movie.ImdbID == null)
-                        return NotFound();
-
-                    var success = await _movieRepo.Create(movie);
-
-                    if (!success)
-                        return BadRequest();
-                }
                 return Ok(movie);
             }
             catch (Exception ex)
@@ -55,15 +40,26 @@ namespace FilmReviews.API.Controllers
         {
             try
             {
-                var movies = await _movieRepo.GetAll();
-
-                return Ok(movies);
+                return Ok(await _mediator.Send(new List.Query()));
             }
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
             }
+        }
 
+        [HttpDelete("Delete/{imdbId}")]
+        public async Task<IActionResult> DeleteAsync(string imdbId)
+        {
+            try
+            {
+                var success = await _mediator.Send(new Delete.Command { ImdbId = imdbId });
+                return success ? Ok() : BadRequest();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 }

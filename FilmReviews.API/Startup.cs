@@ -1,20 +1,16 @@
 using FilmReviews.API.Contracts;
 using FilmReviews.API.Data;
 using FilmReviews.API.Repository;
+using FilmReviews.API.Services.Reviews;
+using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace FilmReviews.API
 {
@@ -36,6 +32,8 @@ namespace FilmReviews.API
 
             services.AddScoped<IMovieRepository, MovieRepository>();
             services.AddScoped<IReviewRepository, ReviewRepository>();
+
+            services.AddMediatR(typeof(List.Handler).Assembly); //We only need to tell MediatR about one.
 
             services.AddControllers();
 

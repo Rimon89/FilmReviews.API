@@ -25,6 +25,17 @@ namespace FilmReviews.API.Repository
             return changes > 0;
         }
 
+        public async Task<bool> Delete(string id)
+        {
+            var movieToDelete = await Find(id);
+
+            _dbContext.Movies.Remove(movieToDelete);
+
+            var changes = await _dbContext.SaveChangesAsync();
+
+            return changes > 0;
+        }
+
         public async Task<Movie> Find(string id)
         {
             var movie = await _dbContext.Movies.FindAsync(id);
