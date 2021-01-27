@@ -32,6 +32,6 @@ namespace FilmReviews.API.Models
         public string ImdbId { get; set; }
 
         [ForeignKey(nameof(ImdbId))]
-        public Movie movie { get; set; }
+        public Movie Movie { get; set; }
     }
 }

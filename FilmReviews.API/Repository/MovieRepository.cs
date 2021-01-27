@@ -3,6 +3,7 @@ using FilmReviews.API.Data;
 using FilmReviews.API.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace FilmReviews.API.Repository
@@ -29,7 +30,11 @@ namespace FilmReviews.API.Repository
         {
             var movieToDelete = await Find(id);
 
-            _dbContext.Movies.Remove(movieToDelete);
+            if (movieToDelete == null)
+                return false;
+
+            var x = await _dbContext.Movies.Where(x => x.ImdbID == id).Include(x => x.Reviews).ToListAsync();
+            _dbContext.Movies.RemoveRange(x);
 
             var changes = await _dbContext.SaveChangesAsync();
 

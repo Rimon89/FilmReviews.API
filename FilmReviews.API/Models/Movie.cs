@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace FilmReviews.API.Models
 {
@@ -24,5 +25,6 @@ namespace FilmReviews.API.Models
         public string ImdbRating { get; set; }
         public string ImdbVotes { get; set; }
         public string Production { get; set; }
+        public ICollection<Review> Reviews { get; set; }
     }
 }
